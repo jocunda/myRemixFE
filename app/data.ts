@@ -314,3 +314,90 @@ export async function deleteContact(id: string) {
     id: `${contact.first.toLowerCase()}-${contact.last.toLocaleLowerCase()}`,
   });
 });
+
+type ItemMutation = {
+  id: number;
+  name?: string;
+  description?: string;
+  imageSrc?: string;
+  imageAlt?: string;
+};
+
+export type ItemRecord = ItemMutation & {
+  id?: number;
+  createdAt: string;
+};
+
+const items = {
+  records: {} as Record<string, ItemRecord>,
+
+  async getAll(): Promise<ItemRecord[]> {
+    return Object.keys(items.records)
+      .map((key) => items.records[key])
+      .sort(sortBy("-createdAt", "last"));
+  },
+
+  async get(id: string): Promise<ItemRecord | null> {
+    return items.records[id] || null;
+  },
+
+  async create(values: ItemMutation): Promise<ItemRecord> {
+    const id = values.id || Math.random().toString(36).substring(2, 9);
+    const createdAt = new Date().toISOString();
+    const newContact = { createdAt, ...values };
+    items.records[id] = newContact;
+    return newContact;
+  },
+
+  async set(id: string, values: ItemMutation): Promise<ItemRecord> {
+    const contact = await items.get(id);
+    invariant(contact, `No contact found for ${id}`);
+    const updatedContact = { ...contact, ...values };
+    items.records[id] = updatedContact;
+    return updatedContact;
+  },
+
+  destroy(id: string): null {
+    delete items.records[id];
+    return null;
+  },
+};
+
+[
+  {
+    id: 1,
+    name: "Desk and Office",
+    description: "Work from home accessories",
+    imageSrc:
+      "https://tailwindui.com/img/ecommerce-images/home-page-02-edition-01.jpg",
+    imageAlt:
+      "Desk with leather desk pad, walnut desk organizer, wireless keyboard and mouse, and porcelain mug.",
+  },
+  {
+    id: 2,
+    name: "Self-Improvement",
+    description: "Journals and note-taking",
+    imageSrc:
+      "https://tailwindui.com/img/ecommerce-images/home-page-02-edition-02.jpg",
+    imageAlt:
+      "Wood table with porcelain mug, leather journal, brass pen, leather key ring, and a houseplant.",
+  },
+  {
+    id: 3,
+    name: "Travel",
+    description: "Daily commute essentials",
+    imageSrc:
+      "https://tailwindui.com/img/ecommerce-images/home-page-02-edition-03.jpg",
+    imageAlt: "Collection of four insulated travel bottles on wooden shelf.",
+  },
+].forEach((item) => {
+  items.create({ ...item, id: item.id || 0 });
+});
+
+export async function getItem(id: string) {
+  return items.get(id);
+}
+
+export async function getItems() {
+  return items.getAll();
+}
