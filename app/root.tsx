@@ -6,13 +6,15 @@ import {
   Scripts,
   ScrollRestoration,
   Outlet,
+  Link,
 } from "@remix-run/react";
 import type { LinksFunction } from "@remix-run/node";
 import appStylesHref from "./app.css";
 import styles from "./tailwind.css";
-import { Fragment } from 'react'
+import { Fragment, useState } from 'react'
 import { Disclosure, Menu, Transition } from '@headlessui/react'
 import { Bars3Icon, BellIcon, XMarkIcon, MagnifyingGlassIcon, ShoppingBagIcon, } from '@heroicons/react/24/outline'
+import Cart from "./components/Cart";
 
 const user = {
   name: 'Tom Cook',
@@ -42,6 +44,8 @@ export const links: LinksFunction = () => [
 ];
 
 export default function App() {
+  const [open, setOpen] = useState(false)
+
   return (
     <html lang="en" className="h-full bg-gray-100">
       <head>
@@ -91,6 +95,7 @@ export default function App() {
                         <button
                           type="button"
                           className="ml-3 relative rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
+                          onClick={() => setOpen(!open)}
                         >
                           <span className="absolute -inset-1.5" />
                           <span className="sr-only">Cart</span>
@@ -211,10 +216,12 @@ export default function App() {
                       >
                         <span className="absolute -inset-1.5" />
                         <span className="sr-only">Cart</span>
-                        <ShoppingBagIcon
-                          className="h-6 w-6 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
-                          aria-hidden="true"
-                        />
+                        <Link to="/cart">
+                          <ShoppingBagIcon
+                            className="h-6 w-6 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
+                            aria-hidden="true"
+                          />
+                        </Link>
                       </button>
                       <button
                         type="button"
@@ -258,7 +265,7 @@ export default function App() {
               </>
             )}
           </Disclosure>
-
+          <Cart open={open} setOpen={setOpen} />
           <header className="bg-white shadow">
             <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
               <h1 className="text-3xl font-bold tracking-tight text-gray-900">Dashboard</h1>
